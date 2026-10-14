@@ -1,0 +1,524 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SmartWaste is an intelligent municipal waste management dashboard for monitoring smart bins, collection vehicles, and waste collection performance.">
+  <title>SmartWaste | Intelligent Waste Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    :root {
+      --bg: #f4f7f5;
+      --surface: #ffffff;
+      --ink: #18352c;
+      --muted: #7b8b83;
+      --green: #198754;
+      --green-dark: #126640;
+      --green-soft: #e5f5eb;
+      --line: #e7ede8;
+      --orange: #ed9c42;
+      --red: #df6262;
+      --shadow: 0 8px 30px rgba(28, 64, 45, .055);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "DM Sans", sans-serif;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 245px; flex-shrink: 0; background: #153e30; color: white;
+      padding: 27px 17px; display: flex; flex-direction: column;
+    }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 10px 35px; }
+    .brand-icon {
+      display: grid; place-items: center; width: 42px; height: 42px;
+      background: #d8f5df; color: #176d43; border-radius: 14px; font-size: 24px;
+    }
+    .brand-name { font: 800 20px Manrope, sans-serif; letter-spacing: -.7px; }
+    .brand-name span { color: #8de0a9; }
+    .nav-label { color: #a7c5b5; font-size: 10px; font-weight: 700; letter-spacing: 1.6px; padding: 0 12px; margin: 0 0 12px; }
+    .nav { display: grid; gap: 7px; }
+    .nav button {
+      display: flex; align-items: center; gap: 12px; border: 0; width: 100%;
+      text-align: left; padding: 12px; border-radius: 10px; color: #c6dbce;
+      background: transparent; font-size: 13px; transition: .2s;
+    }
+    .nav button:hover, .nav button.active { background: #286247; color: white; }
+    .nav .ico { width: 21px; text-align: center; font-size: 17px; }
+    .sidebar-bottom { margin-top: auto; }
+    .demo-card { background: #204d3b; padding: 15px; border-radius: 13px; margin: 28px 3px 16px; }
+    .demo-card strong { font-size: 12px; }
+    .demo-card p { font-size: 11px; color: #b8d3c2; line-height: 1.6; margin-bottom: 0; }
+    .profile { display: flex; align-items: center; gap: 10px; padding: 14px 5px 0; border-top: 1px solid #315a48; }
+    .avatar { display: grid; place-items: center; width: 36px; height: 36px; background: #d9f4df; color: #176d43; border-radius: 50%; font-weight: 800; }
+    .profile strong { font-size: 12px; display: block; }
+    .profile small { color: #b8d3c2; font-size: 10px; }
+    main { flex: 1; min-width: 0; }
+    .topbar {
+      height: 78px; padding: 0 35px; background: rgba(255,255,255,.9);
+      border-bottom: 1px solid var(--line); display: flex; align-items: center;
+      justify-content: space-between; gap: 18px;
+    }
+    .crumb { font-size: 12px; color: var(--muted); }
+    .crumb strong { color: var(--ink); }
+    .top-actions { display: flex; align-items: center; gap: 13px; }
+    .status { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #35b66a; display: inline-block; }
+    .top-avatar { display: grid; place-items: center; width: 35px; height: 35px; border-radius: 50%; background: var(--green-soft); }
+    .content { padding: 31px 35px 45px; max-width: 1600px; margin: auto; }
+    .welcome { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 25px; }
+    .eyebrow { color: var(--green); font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font: 800 clamp(24px, 3vw, 31px) Manrope, sans-serif; letter-spacing: -1.1px; margin: 7px 0; }
+    .subtitle { color: var(--muted); font-size: 13px; margin: 0; }
+    .button {
+      border: 0; border-radius: 9px; padding: 11px 15px; font-size: 12px;
+      font-weight: 700; background: var(--green); color: white; transition: .2s;
+    }
+    .button:hover { background: var(--green-dark); transform: translateY(-1px); }
+    .button.secondary { background: white; color: var(--ink); border: 1px solid var(--line); }
+    .button.secondary:hover { background: var(--green-soft); }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 19px; }
+    .metric, .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 15px; box-shadow: var(--shadow); }
+    .metric { padding: 19px; }
+    .metric-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; }
+    .metric-icon { width: 35px; height: 35px; display: grid; place-items: center; border-radius: 11px; background: var(--green-soft); font-size: 17px; }
+    .metric-value { font: 800 29px Manrope, sans-serif; margin: 15px 0 7px; letter-spacing: -1px; }
+    .metric-foot { font-size: 10px; color: var(--muted); }
+    .positive { color: var(--green); font-weight: 700; }
+    .middle-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(260px, .85fr); gap: 18px; margin-bottom: 19px; }
+    .panel { padding: 21px; min-width: 0; }
+    .panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
+    .panel-heading h2 { font: 800 15px Manrope, sans-serif; margin: 0 0 5px; }
+    .panel-heading p { font-size: 11px; color: var(--muted); margin: 0; }
+    .select {
+      border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+      color: var(--ink); background: white; font-size: 11px; max-width: 145px;
+    }
+    #map { height: 320px; border-radius: 11px; background: #e9f1e8; z-index: 1; }
+    .map-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 14px; color: var(--muted); font-size: 10px; }
+    .legend-dot { width: 8px; height: 8px; display: inline-block; border-radius: 50%; margin-right: 5px; }
+    .progress-row { margin: 19px 0; }
+    .progress-top { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 9px; gap: 8px; }
+    .progress-top span:last-child { color: var(--muted); }
+    .track { height: 7px; border-radius: 20px; background: #edf1ee; overflow: hidden; }
+    .bar { height: 100%; border-radius: 20px; background: var(--green); transition: width .35s; }
+    .orange { background: var(--orange); } .red { background: var(--red); }
+    .mini-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 23px; }
+    .mini { padding: 13px; background: #f6f9f6; border-radius: 10px; }
+    .mini span { font-size: 10px; color: var(--muted); display: block; }
+    .mini strong { display: block; font: 800 20px Manrope, sans-serif; margin-top: 6px; }
+    .lower-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(260px, .7fr); gap: 18px; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 11px; white-space: nowrap; }
+    th { text-align: left; color: var(--muted); font-size: 10px; font-weight: 600; padding: 12px 10px; border-bottom: 1px solid var(--line); }
+    td { padding: 14px 10px; border-bottom: 1px solid #eff3f0; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .bin-id { font-weight: 800; }
+    .pill { display: inline-block; border-radius: 30px; padding: 5px 8px; font-size: 9px; font-weight: 700; }
+    .pill.green { color: #167446; background: #e5f5eb; }
+    .pill.orange-pill { color: #a76813; background: #fff1d9; }
+    .pill.red-pill { color: #b34444; background: #ffebeb; }
+    .chart { height: 195px; display: flex; align-items: flex-end; gap: 12px; padding: 14px 3px 0; border-bottom: 1px solid var(--line); }
+    .chart-col { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 8px; }
+    .chart-bar { width: min(34px, 75%); min-height: 5px; border-radius: 6px 6px 2px 2px; background: #a7dfb8; transition: height .4s; }
+    .chart-bar.highlight { background: var(--green); }
+    .chart-label { font-size: 9px; color: var(--muted); padding-bottom: 9px; }
+    .chart-value { font-size: 9px; color: var(--muted); }
+    .section { display: none; }
+    .section.active { display: block; animation: fadeIn .25s ease; }
+    @keyframes fadeIn { from { opacity: .5; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .filter-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+    .filter-row input, .filter-row select { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: white; color: var(--ink); font-size: 12px; }
+    .filter-row input { flex: 1; min-width: 170px; }
+    .insight-box { background: #eaf7ed; padding: 16px; border-radius: 11px; margin: 15px 0; font-size: 12px; line-height: 1.7; }
+    .insight-box strong { color: var(--green-dark); }
+    .route-item { display: flex; gap: 12px; padding: 15px 0; border-bottom: 1px solid var(--line); }
+    .route-item:last-child { border-bottom: 0; }
+    .route-number { display: grid; place-items: center; flex-shrink: 0; width: 31px; height: 31px; border-radius: 10px; background: var(--green-soft); color: var(--green); font-weight: 800; font-size: 12px; }
+    .route-item strong { display: block; font-size: 12px; margin: 1px 0 5px; }
+    .route-item small { font-size: 10px; color: var(--muted); line-height: 1.5; }
+    .notice { color: var(--muted); font-size: 10px; line-height: 1.6; margin-top: 18px; }
+    footer { padding: 23px 35px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; display: flex; justify-content: space-between; gap: 10px; }
+    .mobile-menu { display: none; }
+    @media (max-width: 1100px) {
+      .sidebar { width: 210px; }
+      .content { padding: 25px 22px 35px; }
+      .topbar { padding: 0 22px; }
+      .metrics { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    @media (max-width: 760px) {
+      .layout { display: block; }
+      .sidebar { width: 100%; padding: 12px 14px; }
+      .brand { padding: 0 4px 12px; }
+      .nav-label, .sidebar-bottom { display: none; }
+      .nav { display: flex; overflow-x: auto; padding-bottom: 4px; }
+      .nav button { width: auto; flex-shrink: 0; padding: 9px 11px; }
+      .nav button span:last-child { white-space: nowrap; }
+      .topbar { height: 58px; padding: 0 17px; }
+      .status { display: none; }
+      .content { padding: 22px 14px 28px; }
+      .welcome { flex-direction: column; }
+      .metrics { gap: 10px; }
+      .metric { padding: 14px; }
+      .metric-value { font-size: 24px; }
+      .middle-grid, .lower-grid { grid-template-columns: 1fr; }
+      #map { height: 290px; }
+      .panel { padding: 16px; }
+      footer { padding: 18px 15px; flex-direction: column; }
+    }
+    @media (max-width: 380px) {
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .metric-value { font-size: 21px; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">♻</div>
+      <div class="brand-name">Smart<span>Waste</span></div>
+    </div>
+    <div class="nav-label">WORKSPACE</div>
+    <nav class="nav" aria-label="Main navigation">
+      <button class="active" data-section="overview"><span class="ico">▦</span><span>Overview</span></button>
+      <button data-section="bins"><span class="ico">▤</span><span>Smart Bins</span></button>
+      <button data-section="fleet"><span class="ico">🚛</span><span>Fleet & Routes</span></button>
+      <button data-section="analytics"><span class="ico">▥</span><span>Analytics</span></button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="demo-card">
+        <strong>🌱 Cleaner cities, smarter choices</strong>
+        <p>Monitor collection activity and explore how connected waste systems could work.</p>
+      </div>
+      <div class="profile">
+        <div class="avatar">SW</div>
+        <div><strong>City Operations</strong><small>Demo workspace</small></div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div class="crumb">Workspace / <strong id="breadcrumb">Overview</strong></div>
+      <div class="top-actions">
+        <span class="status"><span class="dot"></span> Demo system online</span>
+        <div class="top-avatar">🌿</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <section class="section active" id="overview">
+        <div class="welcome">
+          <div>
+            <div class="eyebrow">CITY OPERATIONS CENTER</div>
+            <h1>Waste management overview</h1>
+            <p class="subtitle">A clearer view of collection activity, bin status, and fleet performance.</p>
+          </div>
+          <button class="button" id="refreshBtn">↻ Refresh demo data</button>
+        </div>
+
+        <div class="metrics">
+          <article class="metric">
+            <div class="metric-head"><span>Total smart bins</span><span class="metric-icon">♻️</span></div>
+            <div class="metric-value" id="totalBins">128</div>
+            <div class="metric-foot">Registered demo bins</div>
+          </article>
+          <article class="metric">
+            <div class="metric-head"><span>Bins need collection</span><span class="metric-icon">🟠</span></div>
+            <div class="metric-value" id="urgentBins">24</div>
+            <div class="metric-foot"><span class="positive" id="urgentRate">18.8%</span> of demo bins</div>
+          </article>
+          <article class="metric">
+            <div class="metric-head"><span>Active vehicles</span><span class="metric-icon">🚛</span></div>
+            <div class="metric-value" id="activeVehicles">12</div>
+            <div class="metric-foot">Vehicles in demo fleet</div>
+          </article>
+          <article class="metric">
+            <div class="metric-head"><span>Collected today</span><span class="metric-icon">🌿</span></div>
+            <div class="metric-value" id="collected">2.4 t</div>
+            <div class="metric-foot">Illustrative collection total</div>
+          </article>
+        </div>
+
+        <div class="middle-grid">
+          <article class="panel">
+            <div class="panel-heading">
+              <div><h2>Smart-bin location map</h2><p>Explore sample bin locations and fill levels</p></div>
+              <select class="select" id="mapFilter" aria-label="Filter map bins">
+                <option value="all">All bin statuses</option>
+                <option value="urgent">Needs collection</option>
+                <option value="normal">Normal level</option>
+              </select>
+            </div>
+            <div id="map" aria-label="Interactive map showing sample smart-bin locations"></div>
+            <div class="map-legend">
+              <span><i class="legend-dot" style="background:#df6262"></i>Needs collection</span>
+              <span><i class="legend-dot" style="background:#ed9c42"></i>Nearly full</span>
+              <span><i class="legend-dot" style="background:#198754"></i>Normal</span>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="panel-heading"><div><h2>Bin capacity status</h2><p>Sample distribution by fill level</p></div></div>
+            <div class="progress-row"><div class="progress-top"><span>Critical · 80–100%</span><span id="criticalCount">12 bins</span></div><div class="track"><div class="bar red" id="criticalBar" style="width:9%"></div></div></div>
+            <div class="progress-row"><div class="progress-top"><span>Nearly full · 60–79%</span><span id="highCount">12 bins</span></div><div class="track"><div class="bar orange" id="highBar" style="width:9%"></div></div></div>
+            <div class="progress-row"><div class="progress-top"><span>Normal · below 60%</span><span id="normalCount">104 bins</span></div><div class="track"><div class="bar" id="normalBar" style="width:81%"></div></div></div>
+            <div class="mini-stats">
+              <div class="mini"><span>Average fill</span><strong id="averageFill">42%</strong></div>
+              <div class="mini"><span>Collection zones</span><strong>08</strong></div>
+            </div>
+            <p class="notice">All values are generated for demonstration and are not connected to real municipal sensors.</p>
+          </article>
+        </div>
+
+        <div class="lower-grid">
+          <article class="panel">
+            <div class="panel-heading"><div><h2>Bin status overview</h2><p>Sample bins with the highest fill levels</p></div><button class="button secondary" data-goto="bins">View all bins →</button></div>
+            <div class="table-wrap"><table><thead><tr><th>BIN ID</th><th>ZONE</th><th>FILL LEVEL</th><th>STATUS</th></tr></thead><tbody id="overviewTable"></tbody></table></div>
+          </article>
+          <article class="panel">
+            <div class="panel-heading"><div><h2>Weekly collections</h2><p>Illustrative collected waste (tonnes)</p></div></div>
+            <div class="chart" id="weeklyChart"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="bins">
+        <div class="welcome"><div><div class="eyebrow">CONNECTED INFRASTRUCTURE</div><h1>Smart-bin explorer</h1><p class="subtitle">Search, filter, and inspect the sample bin inventory.</p></div></div>
+        <article class="panel">
+          <div class="filter-row">
+            <input id="binSearch" type="search" placeholder="Search bin ID or zone..." aria-label="Search bins">
+            <select id="statusFilter"><option value="all">All statuses</option><option value="Critical">Critical</option><option value="Nearly full">Nearly full</option><option value="Normal">Normal</option></select>
+            <button class="button secondary" id="resetFilters">Reset filters</button>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>BIN ID</th><th>ZONE</th><th>FILL LEVEL</th><th>STATUS</th><th>LAST COLLECTION</th><th>ACTION</th></tr></thead><tbody id="binsTable"></tbody></table></div>
+          <p class="notice" id="binCountText"></p>
+        </article>
+      </section>
+
+      <section class="section" id="fleet">
+        <div class="welcome"><div><div class="eyebrow">COLLECTION LOGISTICS</div><h1>Fleet & route planning</h1><p class="subtitle">Review a sample fleet and generate an illustrative priority collection plan.</p></div><button class="button" id="routeBtn">Generate priority plan</button></div>
+        <div class="metrics">
+          <article class="metric"><div class="metric-head"><span>Fleet size</span><span class="metric-icon">🚛</span></div><div class="metric-value">16</div><div class="metric-foot">Sample registered vehicles</div></article>
+          <article class="metric"><div class="metric-head"><span>On collection</span><span class="metric-icon">🟢</span></div><div class="metric-value">12</div><div class="metric-foot">Illustrative active vehicles</div></article>
+          <article class="metric"><div class="metric-head"><span>Routes planned</span><span class="metric-icon">↗</span></div><div class="metric-value" id="routeTotal">8</div><div class="metric-foot">Sample collection routes</div></article>
+          <article class="metric"><div class="metric-head"><span>Priority stops</span><span class="metric-icon">📍</span></div><div class="metric-value" id="priorityStops">5</div><div class="metric-foot">Highest-fill sample bins</div></article>
+        </div>
+        <article class="panel">
+          <div class="panel-heading"><div><h2>Suggested collection priorities</h2><p>Prioritized by sample bin fill level, not actual vehicle GPS or road conditions</p></div></div>
+          <div id="routeList"></div>
+          <p class="notice">This is a demonstration priority list, not a road-network optimized route. Real routing requires road data, vehicle locations, capacity limits, and operational constraints.</p>
+        </article>
+      </section>
+
+      <section class="section" id="analytics">
+        <div class="welcome"><div><div class="eyebrow">PERFORMANCE & INSIGHTS</div><h1>Collection analytics</h1><p class="subtitle">Explore summary statistics calculated from this demo's generated records.</p></div><button class="button secondary" id="downloadBtn">↓ Export bin data (CSV)</button></div>
+        <div class="metrics">
+          <article class="metric"><div class="metric-head"><span>Average bin fill</span><span class="metric-icon">◉</span></div><div class="metric-value" id="analyticsAvg">42%</div><div class="metric-foot">Across sample bin records</div></article>
+          <article class="metric"><div class="metric-head"><span>Critical bins</span><span class="metric-icon">⚠️</span></div><div class="metric-value" id="analyticsCritical">12</div><div class="metric-foot">Fill level at least 80%</div></article>
+          <article class="metric"><div class="metric-head"><span>Normal bins</span><span class="metric-icon">✓</span></div><div class="metric-value" id="analyticsNormal">104</div><div class="metric-foot">Fill level below 60%</div></article>
+          <article class="metric"><div class="metric-head"><span>Sample zones</span><span class="metric-icon">⌖</span></div><div class="metric-value">8</div><div class="metric-foot">Zones represented in demo</div></article>
+        </div>
+        <div class="lower-grid">
+          <article class="panel"><div class="panel-heading"><div><h2>Fill level distribution</h2><p>Number of bins in each capacity band</p></div></div><div id="distributionChart"></div></article>
+          <article class="panel"><div class="panel-heading"><div><h2>Operational insights</h2><p>Automatically generated from demo records</p></div></div><div id="insights"></div></article>
+        </div>
+      </section>
+      <p class="notice">Demo prototype · Sample records only · No real sensor, GPS, municipal, or live collection system is connected.</p>
+    </div>
+    <footer><span>♻ SmartWaste · Intelligent Municipal Waste Management</span><span>Interactive portfolio prototype · Demo data</span></footer>
+  </main>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const zones = ["Central Market", "Indiranagar", "Whitefield", "Koramangala", "Jayanagar", "Malleshwaram", "HSR Layout", "Yelahanka"];
+  const initialFills = [96,91,88,85,82,79,76,73,68,64,59,55,51,49,46,44,42,39,36,34,31,28,25,22];
+  const locations = [
+    [12.9716,77.5946],[12.9784,77.6408],[12.9698,77.7500],[12.9352,77.6245],
+    [12.9250,77.5838],[13.0035,77.5700],[12.9116,77.6389],[13.1007,77.5963],
+    [12.9660,77.6060],[12.9560,77.6150],[12.9410,77.6100],[12.9300,77.6000],
+    [12.9820,77.6200],[12.9500,77.6500],[12.9200,77.6400],[13.0200,77.6000],
+    [12.9900,77.5800],[12.9400,77.5700],[12.9000,77.6200],[13.0300,77.6400],
+    [12.9700,77.6600],[12.9600,77.5900],[13.0100,77.6100],[12.9300,77.6600]
+  ];
+  let bins = initialFills.map((fill, i) => ({
+    id: "SW-" + String(101 + i),
+    zone: zones[i % zones.length],
+    fill,
+    lat: locations[i][0],
+    lng: locations[i][1],
+    last: (i % 8) + 1
+  }));
+  const $ = id => document.getElementById(id);
+  const statusOf = fill => fill >= 80 ? "Critical" : fill >= 60 ? "Nearly full" : "Normal";
+  const colorOf = fill => fill >= 80 ? "#df6262" : fill >= 60 ? "#ed9c42" : "#198754";
+  const pillClass = fill => fill >= 80 ? "red-pill" : fill >= 60 ? "orange-pill" : "green";
+  const fmtStatus = fill => `<span class="pill ${pillClass(fill)}">${statusOf(fill)}</span>`;
+  const avg = () => Math.round(bins.reduce((sum, b) => sum + b.fill, 0) / bins.length);
+  const counts = () => ({
+    critical: bins.filter(b => b.fill >= 80).length,
+    high: bins.filter(b => b.fill >= 60 && b.fill < 80).length,
+    normal: bins.filter(b => b.fill < 60).length
+  });
+
+  function renderMetrics() {
+    const c = counts();
+    $("totalBins").textContent = bins.length + 104;
+    $("urgentBins").textContent = c.critical + c.high;
+    $("urgentRate").textContent = ((c.critical + c.high) / bins.length * 100).toFixed(1) + "% of sample";
+    $("averageFill").textContent = avg() + "%";
+    $("criticalCount").textContent = c.critical + " bins";
+    $("highCount").textContent = c.high + " bins";
+    $("normalCount").textContent = c.normal + " bins";
+    $("criticalBar").style.width = (c.critical / bins.length * 100) + "%";
+    $("highBar").style.width = (c.high / bins.length * 100) + "%";
+    $("normalBar").style.width = (c.normal / bins.length * 100) + "%";
+    $("analyticsAvg").textContent = avg() + "%";
+    $("analyticsCritical").textContent = c.critical;
+    $("analyticsNormal").textContent = c.normal;
+  }
+
+  function renderOverviewTable() {
+    $("overviewTable").innerHTML = [...bins].sort((a,b) => b.fill-a.fill).slice(0,5).map(b =>
+      `<tr><td class="bin-id">${b.id}</td><td>${b.zone}</td><td>${b.fill}%</td><td>${fmtStatus(b.fill)}</td></tr>`
+    ).join("");
+  }
+
+  function renderBins() {
+    const q = $("binSearch").value.toLowerCase();
+    const f = $("statusFilter").value;
+    const rows = bins.filter(b => (b.id.toLowerCase().includes(q) || b.zone.toLowerCase().includes(q)) && (f === "all" || statusOf(b.fill) === f));
+    $("binsTable").innerHTML = rows.map(b => `<tr>
+      <td class="bin-id">${b.id}</td><td>${b.zone}</td><td>${b.fill}%</td><td>${fmtStatus(b.fill)}</td>
+      <td>${b.last} day${b.last === 1 ? "" : "s"} ago</td>
+      <td><button class="button secondary" style="padding:6px 9px" data-bin="${b.id}">Inspect</button></td>
+    </tr>`).join("");
+    $("binCountText").textContent = `Showing ${rows.length} of ${bins.length} sample bin records.`;
+  }
+
+  function renderWeeklyChart() {
+    const vals = [2.1, 2.8, 2.4, 3.2, 2.7, 3.5, 2.4];
+    $("weeklyChart").innerHTML = vals.map((v,i) => `<div class="chart-col"><span class="chart-value">${v}</span><div class="chart-bar ${i===6?"highlight":""}" style="height:${v/4*135}px"></div><span class="chart-label">${["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][i]}</span></div>`).join("");
+  }
+
+  function renderDistribution() {
+    const c = counts();
+    const groups = [
+      {label:"Critical (80–100%)", count:c.critical, color:"#df6262"},
+      {label:"Nearly full (60–79%)", count:c.high, color:"#ed9c42"},
+      {label:"Normal (0–59%)", count:c.normal, color:"#198754"}
+    ];
+    $("distributionChart").innerHTML = groups.map(g => `<div class="progress-row"><div class="progress-top"><span>${g.label}</span><span>${g.count} bins</span></div><div class="track"><div class="bar" style="width:${g.count/bins.length*100}%;background:${g.color}"></div></div></div>`).join("");
+    const critical = bins.filter(b => b.fill >= 80).length;
+    const high = bins.filter(b => b.fill >= 60 && b.fill < 80).length;
+    $("insights").innerHTML = `
+      <div class="insight-box"><strong>Collection priority:</strong> ${critical} sample bins are at or above 80% capacity and should be reviewed first in this demo.</div>
+      <div class="insight-box"><strong>Upcoming checks:</strong> ${high} sample bins are between 60% and 79% capacity.</div>
+      <div class="insight-box"><strong>Average fill level:</strong> The sample inventory averages ${avg()}% capacity.</div>`;
+  }
+
+  function renderRoutes() {
+    const top = [...bins].sort((a,b) => b.fill-a.fill).slice(0,5);
+    $("priorityStops").textContent = top.length;
+    $("routeList").innerHTML = top.map((b,i) => `<div class="route-item">
+      <div class="route-number">${i+1}</div>
+      <div style="flex:1"><strong>${b.id} · ${b.zone}</strong><small>Fill level: ${b.fill}% · Priority: ${statusOf(b.fill)}<br>Sample coordinates: ${b.lat.toFixed(4)}, ${b.lng.toFixed(4)}</small></div>
+      ${fmtStatus(b.fill)}
+    </div>`).join("");
+  }
+
+  let map;
+  let markers = [];
+  function initMap() {
+    if (typeof L === "undefined") {
+      $("map").innerHTML = '<p style="padding:20px">The map library could not load. Check your internet connection and reload.</p>';
+      return;
+    }
+    map = L.map("map").setView([12.9716,77.5946], 11);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(map);
+    renderMapMarkers();
+  }
+  function renderMapMarkers() {
+    if (!map) return;
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+    const filter = $("mapFilter").value;
+    bins.forEach(b => {
+      const urgent = b.fill >= 80;
+      if (filter === "urgent" && !urgent) return;
+      if (filter === "normal" && urgent) return;
+      const marker = L.circleMarker([b.lat,b.lng], {
+        radius: b.fill >= 80 ? 9 : b.fill >= 60 ? 7 : 6,
+        color: "#fff", weight: 2, fillColor: colorOf(b.fill), fillOpacity: .95
+      }).addTo(map);
+      marker.bindPopup(`<strong>${b.id}</strong><br>${b.zone}<br>Fill level: ${b.fill}%<br>Status: ${statusOf(b.fill)}<br><em>Sample data only</em>`);
+      markers.push(marker);
+    });
+  }
+
+  function refreshDemo() {
+    bins = bins.map(b => ({...b, fill: Math.max(8, Math.min(100, b.fill + Math.round(Math.random()*20-9)))}));
+    renderAll();
+  }
+  function renderAll() {
+    renderMetrics();
+    renderOverviewTable();
+    renderBins();
+    renderWeeklyChart();
+    renderDistribution();
+    renderRoutes();
+    renderMapMarkers();
+  }
+  function navigate(sectionId) {
+    document.querySelectorAll(".section").forEach(s => s.classList.toggle("active", s.id === sectionId));
+    document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("active", b.dataset.section === sectionId));
+    const active = document.querySelector(`.nav button[data-section="${sectionId}"]`);
+    $("breadcrumb").textContent = active ? active.innerText.trim() : "Overview";
+    if (sectionId === "overview" && map) setTimeout(() => map.invalidateSize(), 100);
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => navigate(b.dataset.section)));
+  document.querySelectorAll("[data-goto]").forEach(b => b.addEventListener("click", () => navigate(b.dataset.goto)));
+  $("refreshBtn").addEventListener("click", refreshDemo);
+  $("mapFilter").addEventListener("change", renderMapMarkers);
+  $("binSearch").addEventListener("input", renderBins);
+  $("statusFilter").addEventListener("change", renderBins);
+  $("resetFilters").addEventListener("click", () => { $("binSearch").value = ""; $("statusFilter").value = "all"; renderBins(); });
+  $("binsTable").addEventListener("click", e => {
+    const button = e.target.closest("[data-bin]");
+    if (!button) return;
+    const b = bins.find(x => x.id === button.dataset.bin);
+    if (b) alert(`${b.id}\nZone: ${b.zone}\nFill level: ${b.fill}%\nStatus: ${statusOf(b.fill)}\n\nDemo record only. No real sensor is connected.`);
+  });
+  $("routeBtn").addEventListener("click", () => {
+    bins = bins.map(b => ({...b}));
+    renderRoutes();
+    alert("Priority plan refreshed using the five highest-fill sample bins. This is not live GPS routing.");
+  });
+  $("downloadBtn").addEventListener("click", () => {
+    const csv = ["Bin ID,Zone,Fill Level,Status,Latitude,Longitude,Last Collection Days Ago",
+      ...bins.map(b => [b.id, `"${b.zone}"`, b.fill, statusOf(b.fill), b.lat, b.lng, b.last].join(","))].join("\n");
+    const url = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8;"}));
+    const a = document.createElement("a");
+    a.href = url; a.download = "smartwaste-demo-bins.csv"; a.click();
+    URL.revokeObjectURL(url);
+  });
+  renderAll();
+  initMap();
+</script>
+</body>
+</html>
