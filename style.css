@@ -1,0 +1,456 @@
+/* SmartWaste — Modern Dashboard Styles */
+
+:root {
+  --green: #16845b;
+  --green-dark: #0c6041;
+  --green-light: #e7f6ed;
+  --background: #f5f8f6;
+  --text: #172b24;
+  --muted: #718078;
+  --white: #ffffff;
+  --border: #e1eae4;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--background);
+  color: var(--text);
+}
+
+button, input, select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 245px;
+  background: #123b2c;
+  color: white;
+  padding: 28px 18px;
+  flex-shrink: 0;
+}
+
+.brand {
+  font-size: 25px;
+  font-weight: 800;
+  margin: 4px 10px 8px;
+}
+
+.brand span {
+  color: #7de0a8;
+}
+
+.tagline {
+  color: #c5ded0;
+  font-size: 12px;
+  margin: 0 10px 35px;
+  line-height: 1.5;
+}
+
+.nav-label {
+  color: #9fc3ae;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.3px;
+  margin: 24px 10px 10px;
+}
+
+.nav-link {
+  display: block;
+  color: #e5f2e9;
+  text-decoration: none;
+  padding: 13px 12px;
+  border-radius: 9px;
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background: #24694d;
+  color: white;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 30px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 28px;
+}
+
+.topbar h1 {
+  font-size: 27px;
+}
+
+.subtitle {
+  color: var(--muted);
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.status {
+  background: var(--green-light);
+  color: var(--green-dark);
+  padding: 10px 14px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.hero {
+  background: linear-gradient(120deg, #126342, #24966a);
+  border-radius: 18px;
+  color: white;
+  padding: 27px;
+  margin-bottom: 24px;
+}
+
+.hero h2 {
+  font-size: 23px;
+  margin-bottom: 10px;
+}
+
+.hero p {
+  max-width: 700px;
+  color: #e2f5e9;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.btn {
+  border: 0;
+  border-radius: 8px;
+  padding: 11px 16px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.btn-light {
+  background: white;
+  color: var(--green-dark);
+}
+
+.btn-outline {
+  border: 1px solid #bce8ce;
+  background: transparent;
+  color: white;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.stat-card, .panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.stat-card p {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.stat-card h3 {
+  font-size: 29px;
+  margin-bottom: 8px;
+}
+
+.stat-card small {
+  color: var(--green);
+  font-size: 12px;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0 15px;
+}
+
+.section-heading h2 {
+  font-size: 19px;
+}
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 18px;
+}
+
+.panel h3 {
+  font-size: 16px;
+  margin-bottom: 17px;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 17px;
+}
+
+input, select {
+  background: white;
+  border: 1px solid #d7e3da;
+  border-radius: 8px;
+  padding: 11px;
+  min-width: 0;
+  color: var(--text);
+}
+
+.filters input {
+  flex: 1;
+  min-width: 170px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+th, td {
+  padding: 14px 10px;
+  text-align: left;
+  border-bottom: 1px solid #edf1ee;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.pill {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pill-green {
+  background: #e5f7eb;
+  color: #18764b;
+}
+
+.pill-orange {
+  background: #fff0d9;
+  color: #9a5b00;
+}
+
+.pill-red {
+  background: #fde8e7;
+  color: #a52e2b;
+}
+
+.progress {
+  height: 7px;
+  background: #eaf0ec;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 8px;
+  min-width: 65px;
+}
+
+.progress div {
+  height: 100%;
+  background: #2ca36d;
+  border-radius: 8px;
+}
+
+.chart {
+  display: flex;
+  align-items: end;
+  justify-content: space-around;
+  gap: 15px;
+  height: 190px;
+  border-bottom: 1px solid var(--border);
+  padding: 15px 5px 0;
+}
+
+.bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+  gap: 8px;
+  flex: 1;
+  height: 100%;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.bar {
+  width: min(42px, 85%);
+  background: linear-gradient(#53c68b, #16845b);
+  border-radius: 7px 7px 0 0;
+  min-height: 5px;
+}
+
+.activity {
+  list-style: none;
+}
+
+.activity li {
+  border-bottom: 1px solid #edf1ee;
+  padding: 13px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.activity li:last-child {
+  border-bottom: 0;
+}
+
+.activity small {
+  display: block;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+.note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 18px;
+}
+
+.footer {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+  margin-top: 30px;
+  padding: 18px;
+}
+
+.toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  background: #123b2c;
+  color: white;
+  padding: 14px 20px;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px #0002;
+  z-index: 10;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 1050px) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .panel-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    width: 205px;
+  }
+
+  .main {
+    padding: 22px;
+  }
+}
+
+@media (max-width: 650px) {
+  .app {
+    display: block;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 18px;
+  }
+
+  .tagline {
+    margin-bottom: 15px;
+  }
+
+  .nav-label {
+    margin-top: 12px;
+  }
+
+  .nav-link {
+    display: inline-block;
+    padding: 9px;
+  }
+
+  .main {
+    padding: 17px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+  }
+
+  .topbar h1 {
+    font-size: 22px;
+  }
+
+  .status {
+    font-size: 10px;
+  }
+
+  .stats {
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 14px;
+  }
+
+  .stat-card h3 {
+    font-size: 23px;
+  }
+
+  .hero {
+    padding: 20px;
+  }
+}
