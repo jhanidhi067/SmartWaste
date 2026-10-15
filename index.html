@@ -1,105 +1,136 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SmartWaste — an interactive municipal waste management dashboard prototype.">
   <title>SmartWaste | Intelligent Waste Management</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f7f5;
-      color: #18352b;
-    }
-    header {
-      background: #123d2d;
-      color: white;
-      padding: 22px 7%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-    .logo { font-size: 25px; font-weight: bold; }
-    nav { display: flex; gap: 22px; flex-wrap: wrap; }
-    nav a { color: white; text-decoration: none; }
-    .hero { padding: 65px 7%; background: #e1f3e8; }
-    .hero h1 { font-size: clamp(32px, 5vw, 52px); max-width: 700px; }
-    .hero p { margin: 18px 0; line-height: 1.7; max-width: 650px; }
-    .button {
-      background: #168451; color: white; border: 0;
-      padding: 13px 20px; border-radius: 8px;
-      cursor: pointer; font-weight: bold;
-    }
-    main { padding: 35px 7%; }
-    h2 { margin-bottom: 20px; }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 18px; margin-bottom: 38px;
-    }
-    .card {
-      background: white; padding: 24px; border-radius: 14px;
-      box-shadow: 0 4px 16px #18352b0d;
-    }
-    .number { font-size: 32px; color: #168451; font-weight: bold; margin: 12px 0; }
-    .muted { color: #66766d; line-height: 1.6; }
-    .section { margin: 35px 0; }
-    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
-    input, select {
-      padding: 12px; border: 1px solid #cbd8cf;
-      border-radius: 8px; background: white; min-width: 180px;
-    }
-    table { width: 100%; border-collapse: collapse; background: white; }
-    th, td { text-align: left; padding: 15px; border-bottom: 1px solid #e6ece8; }
-    th { background: #e1f3e8; }
-    .status { color: #168451; font-weight: bold; }
-    .map {
-      min-height: 190px; border-radius: 14px; padding: 28px;
-      background: linear-gradient(135deg, #d9eee0, #f4f7f5);
-      display: grid; place-items: center; text-align: center;
-      border: 1px dashed #80b899;
-    }
-    footer { margin-top: 40px; background: #123d2d; color: white; padding: 25px 7%; }
-    @media(max-width: 600px) {
-      header { align-items: flex-start; flex-direction: column; }
-      th, td { padding: 10px 6px; font-size: 13px; }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <div class="logo">♻ SmartWaste</div>
-    <nav>
-      <a href="#dashboard">Dashboard</a>
-      <a href="#tracking">Tracking</a>
-      <a href="#analytics">Analytics</a>
-      <a href="#about">About</a>
-    </nav>
-  </header>
+<div class="app">
 
-  <section class="hero">
-    <h1>Building Cleaner, Smarter Cities.</h1>
-    <p>
-      An intelligent municipal waste management prototype designed to
-      monitor collection activity, explore service status, and support
-      data-driven waste management decisions.
-    </p>
-    <button class="button" onclick="document.getElementById('tracking').scrollIntoView({behavior:'smooth'})">
-      Explore Collection Status →
-    </button>
-  </section>
+  <aside class="sidebar">
+    <div class="brand">♻ Smart<span>Waste</span></div>
+    <p class="tagline">INTELLIGENT MUNICIPAL WASTE MANAGEMENT</p>
 
-  <main>
-    <section id="dashboard" class="section">
-      <h2>City Operations Dashboard</h2>
-      <p class="muted" style="margin-bottom:18px">
-        Illustrative demo data — not connected to live municipal systems.
+    <p class="nav-label">Workspace</p>
+    <a href="#overview" class="nav-link active" data-section="overview">▦ &nbsp; Overview</a>
+    <a href="#zones" class="nav-link" data-section="zones">◉ &nbsp; Collection Zones</a>
+    <a href="#analytics" class="nav-link" data-section="analytics">▥ &nbsp; Analytics</a>
+    <a href="#reports" class="nav-link" data-section="reports">⇩ &nbsp; Reports</a>
+
+    <p class="nav-label">System</p>
+    <a href="#about" class="nav-link" data-section="about">ⓘ &nbsp; About SmartWaste</a>
+
+    <div style="margin:35px 10px 0;padding-top:18px;border-top:1px solid #37634f">
+      <p style="font-size:12px;color:#b6d4c2;line-height:1.8">
+        DEMO ENVIRONMENT<br>
+        Sample data only<br>
+        <span style="color:#8be0ad">● Prototype active</span>
       </p>
-      <div class="stats">
-        <div class="card">
-          <p class="muted">Total Collection Points</p>
-          <div class="number" id="points">128</div>
+    </div>
+  </aside>
 
+  <main class="main">
+    <header class="topbar" id="overview">
+      <div>
+        <h1>Waste Management Dashboard</h1>
+        <p class="subtitle">Monitor collection zones, explore waste levels and generate reports.</p>
+      </div>
+      <span class="status">● DEMO MODE</span>
+    </header>
+
+    <section class="hero">
+      <h2>A cleaner city starts with smarter decisions.</h2>
+      <p>
+        Explore a demonstration of how waste collection monitoring,
+        zone-level insights and operational reporting can work together
+        in one simple dashboard.
+      </p>
+      <div class="hero-actions">
+        <button class="btn btn-light" id="scheduleButton">＋ Schedule Collection</button>
+        <button class="btn btn-outline" id="refreshButton">↻ Refresh Dashboard</button>
+      </div>
+    </section>
+
+    <section class="stats">
+      <article class="stat-card">
+        <p>Total Collection Zones</p>
+        <h3 id="totalZones">08</h3>
+        <small>Sample zones</small>
+      </article>
+      <article class="stat-card">
+        <p>Urgent Attention</p>
+        <h3 id="urgentZones">02</h3>
+        <small>High waste levels</small>
+      </article>
+      <article class="stat-card">
+        <p>Average Waste Level</p>
+        <h3 id="averageWaste">61%</h3>
+        <small>Across demo zones</small>
+      </article>
+      <article class="stat-card">
+        <p>Collections Completed</p>
+        <h3 id="completedZones">03</h3>
+        <small>Demo status records</small>
+      </article>
+    </section>
+
+    <section id="zones">
+      <div class="section-heading">
+        <h2>Collection Zone Monitor</h2>
+        <span class="subtitle" id="zoneCount">8 zones shown</span>
+      </div>
+
+      <div class="panel">
+        <div class="filters">
+          <input id="zoneSearch" type="search" placeholder="Search zone, ID or waste type..." aria-label="Search zones">
+
+          <select id="statusFilter" aria-label="Filter by collection status">
+            <option value="All">All statuses</option>
+            <option value="Collected">Collected</option>
+            <option value="Collection Due">Collection Due</option>
+            <option value="Urgent">Urgent</option>
+          </select>
+
+          <select id="areaFilter" aria-label="Filter by area">
+            <option value="All">All areas</option>
+            <option value="Central">Central</option>
+            <option value="North">North</option>
+            <option value="South">South</option>
+            <option value="East">East</option>
+            <option value="West">West</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ZONE ID</th>
+                <th>LOCATION</th>
+                <th>AREA</th>
+                <th>WASTE LEVEL</th>
+                <th>STATUS</th>
+                <th>WASTE TYPE</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody id="zoneTable">
+              <tr><td colspan="7">Loading sample zones...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Zone names, waste percentages and collection statuses are fictional demonstration data. They are not connected to live bins or municipal systems.</p>
+      </div>
+    </section>
+
+    <section class="panel-grid" id="analytics">
+      <article class="panel">
+        <h3>Waste Level by Zone</h3>
+        <div class="chart" aria-label="Sample waste level chart">
+          <div class="bar-item"><div class="bar" style="height:82%"></div><span>Market</span></div>
+          <div class="bar-item"><div class="bar" style="height:35%"></div><span>Park</span></div>
+          <div class="bar-item"><div class="bar" style="height:67%"></div><span>Lake</span></div>
+          <div class="bar-item"><div class="bar" style="height:
